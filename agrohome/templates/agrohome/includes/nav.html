@@ -1,0 +1,23 @@
+{% load static %}
+<header>
+    <nav>
+      <div class="logo">
+        <span class="logo-icon">🌿</span>
+        <span class="logo-text">AgroScan</span>
+      </div>
+      <ul class="nav-links">
+        <li><a href="{% url 'home' %}">Home</a></li>
+        {% if user.is_authenticated %}
+        <li><a href="#" class="historyBtn">History</a></li>
+        {% if user.is_superuser %}
+        <li><a href="/admin">Admin</a></li>
+        {% endif %}
+        <li><a href="{% url 'logout' %}">Log Out</a></li>
+        {% else %}
+        <li><a href="{% url 'log' %}">Login</a></li>
+        <li><a href="{% url 'sign' %}">Sign Up</a></li>
+        {% endif %}
+        <a href="#" class="btn btn-primary diagBtn">New Diagnosis</a>
+      </ul>
+    </nav>
+  </header>

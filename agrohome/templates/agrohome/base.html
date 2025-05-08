@@ -1,0 +1,32 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AgroScan - {% block head_title %}{% endblock %}</title>
+    <meta name="description" content="AI-powered Crop Diagnosis for Farmers" />
+    <link rel="stylesheet" href="{% static 'CSS/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="apple-touch-icon" sizes="180x180" href="{% static 'fav/apple-touch-icon.png' %}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'fav/favicon-32x32.png' %}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'fav/favicon-16x16.png' %}">
+    <link rel="manifest" href="{% static 'fav/site.webmanifest' %}">
+</head>
+<body>
+    {% include 'agrohome/includes/nav.html' %}
+    {% block content %}
+    {% endblock %}
+    {% include 'agrohome/includes/footer.html' %}
+    <script>
+        const DiagnosisURL = "{% url 'crop_diagnosis' %}";
+    </script>
+    {% if user.is_authenticated %}
+    <script>
+        const HistoryURL = "{% url 'diagnosis_history' user.id %}";
+    </script>
+    {% endif %}
+    <script src="{% static 'JS/main.js' %}"></script>
+    <script src="{% static 'JS/script.js' %}"></script>
+</body>
+</html>

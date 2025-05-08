@@ -1,0 +1,31 @@
+{% extends 'agrohome/base.html' %}
+{% load static %}
+{% block head_title %}Log In{% endblock %}
+{% block content %}
+<main>
+    <div class="form-container">
+      <h3 class="form-title" id="login-status">Login to AgroScan</h2>
+      <form id="login-form">
+        {% csrf_token %}
+        <div class="form-group">
+          <label for="username">Username</label>
+          <input type="text" id="login-username" name="username" >
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="login-password" name="password" >
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%;">Login</button>
+      </form>
+      <p style="text-align: center; margin-top: 1rem;">
+        Don't have an account? <a href="{% url 'sign' %}" style="color: var(--primary);">Sign up</a>
+      </p>
+    </div>
+  </main>
+<script>
+    const loginUrl = "{% url 'log_in' %}";
+    const homeUrl = "{% url 'home' %}";
+</script>
+
+<script src="{% static 'JS/login.js' %}"></script>
+{% endblock %}

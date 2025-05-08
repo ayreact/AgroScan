@@ -1,0 +1,43 @@
+{% extends 'agrohome/base.html' %}
+{% load static %}
+{% block head_title %}Sign Up{% endblock %}
+{% block content %}
+<main>
+    <div class="form-container">
+      <h3 class="form-title" id="signup-status">Create an Account</h2>
+      <form id="signup-form">
+        {% csrf_token %}
+        <div class="form-group">
+          <label for="name">Full Name</label>
+          <input type="text" id="name" name="name" required>
+        </div>
+        <div class="form-group">
+          <label for="username">Username</label>
+          <input type="text" id="signup-username" name="username" required>
+        </div>
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input type="email" id="signup-email" name="email" required>
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="signup-password" name="password" required>
+        </div>
+        <div class="form-group">
+          <label for="confirm-password">Confirm Password</label>
+          <input type="password" id="confirm-password" name="confirm-password" required>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%;">Sign Up</button>
+      </form>
+      <p style="text-align: center; margin-top: 1rem;">
+        Already have an account? <a href="{% url 'log' %}" style="color: var(--primary);">Login</a>
+      </p>
+    </div>
+  </main>
+<script>
+    const signupUrl = "{% url 'sign_up' %}";
+    const homeUrl = "{% url 'home' %}";
+</script>
+
+<script src="{% static 'JS/signup.js' %}"></script>
+{% endblock %}
