@@ -4,6 +4,7 @@ import requests
 from .models import PlantDiagnosis, StoredDiagnosis
 from django.http import JsonResponse
 from django.conf import settings
+import random
 
 def diagnosis_page(request):
     return render(request, 'submissions/diagnosis.html')
@@ -59,9 +60,12 @@ def run_diagnosis(request):
             else:
                 # Handle stored diagnosis logic if no API URL is present
                 stored_diagnosis = StoredDiagnosis.objects.all()
+                stored_list = list(stored_diagnosis)
+                random.shuffle(stored_list)
+
                 diagnosis_result = None 
 
-                for item in stored_diagnosis:
+                for item in stored_list:
                     if item.name.lower() in image_prompt.lower():
                         diagnosis_result = item
                         break  # Stop once a match is found
