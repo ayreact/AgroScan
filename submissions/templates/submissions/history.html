@@ -27,9 +27,14 @@
       <!-- History Details -->
       <div class="history-details">
         <div class="history-detail-content">
+            {% if last_diagnosis.image %}
             <div style="text-align: center; margin-bottom: 1.5rem;">
-              <img src="{{last_diagnosis.image.url}}" id="currentDiagnosisImage" alt="Tomato plant with leaf spots" style="max-width: 100%; max-height: 300px; object-fit: contain; border-radius: 0.5rem;">
+              <img src="{{ last_diagnosis.image.url }}" id="currentDiagnosisImage" alt="Tomato plant with leaf spots"
+                  style="max-width: 100%; max-height: 300px; object-fit: contain; border-radius: 0.5rem;">
             </div>
+            {% else %}
+              <p style="text-align: center;">No diagnosis image available.</p>
+            {% endif %}
             
             <div class="result-section">
               <h3>Diagnosis Title</h3>

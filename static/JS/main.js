@@ -4,7 +4,7 @@ const navHistory = document.querySelectorAll(".historyBtn");
 navDiagnosis.forEach((navDia) => {
 
     navDia.addEventListener('click', () => {
-        localStorage.removeItem('last_diagnosis');
+        localStorage.removeItem('lastDiagnosis');
         window.location.href = DiagnosisURL
     });
 });

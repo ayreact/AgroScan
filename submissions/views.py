@@ -31,7 +31,7 @@ def run_diagnosis(request):
 
                 # Save to DB if the user is authenticated
                 if request.user.is_authenticated:
-                    PlantDiagnosis.objects.create(
+                    diagnosis = PlantDiagnosis.objects.create(
                         user=request.user,
                         image=image_file,
                         image_prompt=image_prompt,
@@ -42,6 +42,7 @@ def run_diagnosis(request):
                         control_suggestions=ai_data.get('control_suggestions', 'None provided'),
                         summary=ai_data.get('summary', 'No summary available'),
                     )
+                    diagnosis.save()
 
                 return JsonResponse({
                     'message': 'Diagnosis saved successfully',
@@ -71,7 +72,7 @@ def run_diagnosis(request):
 
                 # Save response to DB if user is authenticated
                 if request.user.is_authenticated:
-                    PlantDiagnosis.objects.create(
+                    diagnosis = PlantDiagnosis.objects.create(
                         user=request.user,
                         image=image_file,
                         image_prompt=image_prompt,
@@ -82,6 +83,7 @@ def run_diagnosis(request):
                         control_suggestions=diagnosis_result.control_suggestions,
                         summary=diagnosis_result.summary,
                     )
+                    diagnosis.save()
 
                 return JsonResponse({
                     'message': 'Diagnosis done successfully',
