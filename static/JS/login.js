@@ -13,6 +13,7 @@ document.getElementById("login-form").addEventListener("submit", async function 
         "Content-Type": "application/json",
         "X-CSRFToken": csrfToken
       },
+      credentials: "include",
       body: JSON.stringify({ username, password })
     });
 

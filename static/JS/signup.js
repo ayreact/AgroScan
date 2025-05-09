@@ -34,6 +34,7 @@ document.getElementById("signup-form").addEventListener("submit", async function
             "Content-Type": "application/json",
             "X-CSRFToken": csrfToken
           },
+          credentials: "include",
           body: JSON.stringify({ first_name, username, email, password })
         });
     

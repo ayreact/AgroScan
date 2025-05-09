@@ -144,8 +144,9 @@ form.addEventListener('submit', async function (e) {
         const response = await fetch(diagnosisUrl, {
             method: 'POST',
             headers: {
-                'X-CSRFToken': csrfToken,
+              'X-CSRFToken': csrfToken,
             },
+            credentials: "include",
             body: formData,
         });
 

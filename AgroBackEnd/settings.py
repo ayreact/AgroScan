@@ -31,6 +31,7 @@ DEBUG = os.getenv('DEBUG')
 
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')
 
+CSRF_TRUSTED_ORIGINS = os.getenv('CSRF_TRUSTED_ORIGINS', '').split(',')
 
 # Application definition
 
@@ -49,6 +50,10 @@ INSTALLED_APPS = [
 ]
 
 AI_API = os.getenv('AI_API')
+
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SAMESITE = 'Lax'  # default
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
