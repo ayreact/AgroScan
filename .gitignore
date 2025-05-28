@@ -1,0 +1,31 @@
+# Python-specific
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.python-version
+env/
+venv/
+AgroEnv/
+
+# Django-specific
+*.sqlite3
+staticfiles/
+media/
+
+# OS-specific
+.DS_Store
+Thumbs.db
+
+# Editor/IDE-specific
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Deployment-specific
+.env
+*.log
+
+# Other
+# Any other temporary files or directories you don't want to track

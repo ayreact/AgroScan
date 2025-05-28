@@ -1,0 +1,23 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AgroScan - {% block head_title %}{% endblock %}</title>
+    <meta name="description" content="AI-powered Crop Diagnosis for Farmers" />
+    <link rel="stylesheet" href="{% static 'CSS/style.css' %}style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+    {% include 'agrohome/includes/sidebar.html' %}
+    {% block content %}
+    {% endblock %}
+    <script>
+        const DiagnosisURL = "{% url 'crop_diagnosis' %}";
+        const HistoryURL = "{% url 'diagnosis_history' user.id %}";
+    </script>
+    <script src="{% static 'JS/main.js' %}"></script>
+    <script src="{% static 'JS/script.js' %}"></script>
+</body>
+</html>

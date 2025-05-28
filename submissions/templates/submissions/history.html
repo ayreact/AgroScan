@@ -1,0 +1,78 @@
+{% extends 'agrohome/base.html' %}
+{% load static %}
+{% block head_title %}Past Diagnosis{% endblock %}
+{% block content %}
+<main>
+    <h1 style="text-align: center; color: var(--primary); margin-bottom: 1rem;" class="history">Diagnosis History</h1>
+    
+    <div class="history-container">
+      <!-- Mobile toggle button for history sidebar -->
+      <button class="history-toggle-btn" id="historyToggleBtn" style="display: none;">Show Previous Diagnoses</button>
+      
+      <!-- History sidebar overlay (for mobile) -->
+      <div class="history-sidebar-overlay" id="historySidebarOverlay"></div>
+      
+      <br>
+      <div class="history-sidebar" id="historySidebar">
+        <h3 style="color: var(--primary); margin-bottom: 1rem;">Past Diagnoses</h3>
+
+        {% for item in user_diagnosis %}
+        <div class="history-item getHistoryBtn" data-id="{{ item.id }}">
+          <h4>{{item.diagnosis_title}}</h4>
+          <p class="text-sm text-muted">{{item.created_at}}</p>
+        </div>
+        {% endfor %}
+      </div>
+
+      <!-- History Details -->
+      <div class="history-details">
+        <div class="history-detail-content">
+            {% if last_diagnosis.image %}
+            <div style="text-align: center; margin-bottom: 1.5rem;">
+              <img src="{{ last_diagnosis.image.url }}" id="currentDiagnosisImage" alt="Tomato plant with leaf spots"
+                  style="max-width: 100%; max-height: 300px; object-fit: contain; border-radius: 0.5rem;">
+            </div>
+            {% else %}
+              <p style="text-align: center;">No diagnosis image available.</p>
+            {% endif %}
+            
+            <div class="result-section">
+              <h3>Diagnosis Title</h3>
+              <p id="currentDiagnosisTitle">{{last_diagnosis.diagnosis_title}}</p>
+            </div>
+            
+            <div class="result-section">
+              <h3>Current Health Condition</h3>
+              <p id="currentDiagnosishealth">{{last_diagnosis.health_condition}}</p>
+            </div>
+            
+            <div class="result-section">
+              <h3>Potential Disease Causes</h3>
+              <p id="currentDiagnosisCause">{{last_diagnosis.cause}}</p>
+            </div>
+            
+            <div class="result-section">
+              <h3>Disease Signs</h3>
+              <p id="currentDiagnosisSigns">{{last_diagnosis.diagnosis_signs}}</p>
+            </div>
+            
+            <div class="result-section">
+              <h3>Control Suggestions</h3>
+              <p id="currentDiagnosisControl">{{last_diagnosis.control_suggestions}}</p>
+            </div>
+            
+            <div class="result-section">
+              <h3>Summary</h3>
+              <p id="currentDiagnosisSummary">{{last_diagnosis.summary}}</p>
+            </div>
+        </div>
+      </div>
+    </div>
+      
+    
+  </main>
+<script>
+    const baseHistoryUrl = "{% url 'get_history' 0 %}"; 
+</script>
+<script src="{% static 'JS/history.js' %}"></script>
+{% endblock %}

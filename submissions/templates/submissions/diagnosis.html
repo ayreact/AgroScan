@@ -1,0 +1,78 @@
+{% extends 'agrohome/base.html' %}
+{% load static %}
+{% block head_title %}Take Diagnosis{% endblock %}
+{% block content %}
+<main>
+    <h1 style="text-align: center; color: var(--primary); margin-bottom: 2rem;" class="history">Crop Diagnosis</h1>
+    
+    <div class="diagnosis-container">
+      <div class="diagnosis-form">
+        <h2 style="color: var(--primary); margin-bottom: 1.5rem;">Submit a New Diagnosis</h2>
+        
+        <form id="diagnosis-form" enctype="multipart/form-data">
+          {% csrf_token %}
+          <div class="form-group">
+            <label>Image Upload</label><span id="image-upload-error" style="color: red; font-size: 0.85rem; margin: 0;"></span>
+            <div class="image-preview" id="image-preview">
+              <span id="upload-prompt">Upload or take a photo of your crop</span>
+              <img id="preview-image" style="display: none;" />
+            </div>
+            
+            <div class="image-buttons">
+              <label for="image-upload" class="btn btn-outline" style="flex: 1;">
+                Upload Image
+                <input type="file" id="image-upload" accept="image/*" style="display: none;" name="image">
+              </label>
+              <button type="button" id="camera-button" class="btn btn-outline" style="flex: 1;">Take Photo</button>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="description">Additional Notes</label>
+            <textarea id="description" name="notes" rows="4" placeholder="Describe any symptoms or concerns...Make sure to include plant name!" required></textarea>
+          </div>
+          
+          <button type="submit" class="btn btn-primary" style="width: 100%;">Submit for Diagnosis</button>
+        </form>
+      </div>
+      
+      <div class="results-container" id="results-container" style="display: none;">
+        <h2 style="color: var(--primary); margin-bottom: 1.5rem;">Diagnosis Results</h2>
+        
+        <div class="result-section">
+          <h3>Diagnosis Title</h3>
+          <p id="diagnosis-title"></p>
+        </div>
+        
+        <div class="result-section">
+          <h3>Current Health Condition</h3>
+          <p id="health-condition"></p>
+        </div>
+        
+        <div class="result-section">
+          <h3>Potential Disease Causes</h3>
+          <p id="causes"></p>
+        </div>
+        
+        <div class="result-section">
+          <h3>Disease Signs</h3>
+          <p id="disease-signs"></p>
+        </div>
+        
+        <div class="result-section">
+          <h3>Control Suggestions</h3>
+          <p id="control-suggestions"></p>
+        </div>
+        
+        <div class="result-section">
+          <h3>Summary</h3>
+          <p id="summary"></p>
+        </div>
+      </div>
+    </div>
+  </main>
+<script>
+    const diagnosisUrl = "{% url 'run_diagnosis' %}"
+</script>
+<script src="{% static 'JS/diagnosis.js' %}"></script>
+{% endblock %}

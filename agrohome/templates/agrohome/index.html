@@ -1,0 +1,40 @@
+{% extends 'agrohome/base.html' %}
+{% load static %}
+{% block head_title %}AI-powered Crop Diagnosis{% endblock %}
+{% block content %}
+<main>
+    <section class="hero">
+      <h1>🌾 AI-Powered Crop Diagnosis</h1>
+      <p>AgroScan is your intelligent crop health assistant that helps farmers diagnose plant diseases, even without internet access. Whether you're online or offline, simply snap a photo or send an SMS to get started.</p>
+      {% if user.is_authenticated %}
+      <div class="cta-buttons">
+        <a href="#" class="btn btn-primary diagBtn">Take Diagnosis</a>
+        <a href="#" class="btn btn-outline-secondary historyBtn">View History</a>
+      </div>
+      {% else %}
+      <div class="cta-buttons">
+        <a href="#" class="btn btn-primary diagBtn">Continue as Guest</a>
+        <a href="{% url 'log' %}" class="btn btn-outline-secondary">Login</a>
+      </div>
+      {% endif %}
+    </section>
+
+    <section class="features">
+      <div class="feature-card">
+        <div class="feature-icon">📶</div>
+        <h3>Offline Support</h3>
+        <p>No internet? No problem. AgroScan works via SMS for rural communities.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔍</div>
+        <h3>AI Analysis</h3>
+        <p>Advanced AI identifies diseases and gives recommended actions</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📷</div>
+        <h3>Capture & Upload</h3>
+        <p>Take photos directly or upload images of your crops</p>
+      </div>
+    </section>
+</main>
+{% endblock %}
