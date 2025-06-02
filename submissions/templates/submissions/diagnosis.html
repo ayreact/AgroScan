@@ -12,7 +12,7 @@
         <form id="diagnosis-form" enctype="multipart/form-data">
           {% csrf_token %}
           <div class="form-group">
-            <label>Image Upload</label><span id="image-upload-error" style="color: red; font-size: 0.85rem; margin: 0;"></span>
+            <label>Image Upload<i class="fa-solid fa-trash" id="image-clear" style="display: none; color: red; font-size: 0.9rem; margin: 0 15px 0; cursor: pointer;" role="button" title="Remove Image"></i></label><span id="image-upload-error" style="color: red; font-size: 0.85rem; margin: 0;"></span>
             <div class="image-preview" id="image-preview">
               <span id="upload-prompt">Upload or take a photo of your crop</span>
               <img id="preview-image" style="display: none;" />
@@ -29,7 +29,7 @@
           
           <div class="form-group">
             <label for="description">Additional Notes</label>
-            <textarea id="description" name="notes" rows="4" placeholder="Describe any symptoms or concerns...Make sure to include plant name!" required></textarea>
+            <textarea id="description" name="notes" rows="4" placeholder="Describe any symptoms or concerns..."></textarea>
           </div>
           
           <button type="submit" class="btn btn-primary" style="width: 100%;">Submit for Diagnosis</button>
@@ -74,5 +74,5 @@
 <script>
     const diagnosisUrl = "{% url 'run_diagnosis' %}"
 </script>
-<script src="{% static 'JS/diagnosis.js' %}"></script>
+<script src="{% static 'JS/diagnosis.js' %}" async></script>
 {% endblock %}

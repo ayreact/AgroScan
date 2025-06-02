@@ -1,114 +1,116 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render
 from django.forms.models import model_to_dict
-import requests
-from .models import PlantDiagnosis, StoredDiagnosis
+from .models import PlantDiagnosis
+from .openai_utils import generate_crop_diagnosis
 from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.decorators import login_required
 from django.conf import settings
-import random
+import json
 
 def diagnosis_page(request):
     return render(request, 'submissions/diagnosis.html')
 
+# Diagnosis endpoint
 def run_diagnosis(request):
-    api_url = settings.AI_API
-    if request.method == 'POST':
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Only POST method allowed'}, status=405)
+    
+    try:
+        image_file = request.FILES.get('image')  # None if not provided
+        text = request.POST.get('notes', '')     # Empty string if not provided
+        
+        # Generate diagnosis
+        diagnosis_result = generate_crop_diagnosis(text, image_file)
+        
+        if 'error' in diagnosis_result:
+            return JsonResponse({'error': diagnosis_result['error']}, status=400)
+        
+        # Prepare response data
+        response_data = {
+            'data': {
+                'diagnosis_title': diagnosis_result.get('diagnosis_title', 'Untitled'),
+                'health_condition': diagnosis_result.get('health_condition', 'Unknown'),
+                'cause': diagnosis_result.get('cause', 'Unknown'),
+                'disease_signs': diagnosis_result.get('disease_signs', 'None detected'),
+                'control_suggestions': diagnosis_result.get('control_suggestions', 'None provided'),
+                'summary': diagnosis_result.get('summary', 'No summary available'),
+            }
+        }
+
+        # Save for authenticated users
+        if request.user.is_authenticated:
+            diagnosis = PlantDiagnosis.objects.create(
+                user=request.user,
+                image=image_file,
+                image_prompt=text,
+                **response_data['data']
+            )
+            response_data['message'] = 'Diagnosis saved successfully'
+            status_code = 201
+        else:
+            response_data['message'] = 'Diagnosis Complete'
+            status_code = 200
+
+        return JsonResponse(response_data, status=status_code)
+
+    except Exception as e:
+        return JsonResponse({'error': f'Server error: {str(e)}'}, status=500)
+    
+
+# SMS Diagnosis
+@csrf_exempt
+def sms_diagnosis(request):
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Only POST method allowed'}, status=405)
+
+    diagnosis_key = request.headers.get('Diagnosis-Key') or request.headers.get('diagnosis-key')
+    if not diagnosis_key or diagnosis_key != settings.DIAGNOSIS_KEY:
+        return JsonResponse({'error': 'Invalid or missing diagnosis key'}, status=401)
+
+    text = ''
+    image_file = None
+    response_data = {
+        'data': {
+            'diagnosis_title': 'Untitled',
+            'health_condition': 'Unknown',
+            'cause': 'Unknown',
+            'disease_signs': 'None detected',
+            'control_suggestions': 'None provided',
+            'summary': 'No summary available'
+        },
+        'message': 'Diagnosis Complete'
+    }
+
+    try:
+        text = request.POST.get('text', '').strip()
         image_file = request.FILES.get('image')
-        image_prompt = request.POST.get('notes', '')
 
-        if not image_file:
-            return JsonResponse({'error': 'No image file provided'}, status=400)
+        if image_file:
+            if image_file.size > 5 * 1024 * 1024:
+                raise ValueError("Image too large (max 5MB)")
+            if not image_file.content_type.startswith('image/'):
+                raise ValueError("Invalid image format")
 
-        try:
-            # Check settings if api url is present, if it isn't, run request through Stored Diagnosis DB
-            if api_url:
-                # Prepare payload for AI API
-                files = {'image': image_file}
-                data = {'text': image_prompt} if image_prompt else {}
+        diagnosis_result = generate_crop_diagnosis(text or None, image_file)
 
-                # Make request to AI
-                response = requests.post(api_url, files=files, data=data)
-                response.raise_for_status()
-                ai_data = response.json()
+        if 'error' in diagnosis_result:
+            return JsonResponse({'error': diagnosis_result['error']}, status=400)
 
-                # Save to DB if the user is authenticated
-                if request.user.is_authenticated:
-                    diagnosis = PlantDiagnosis.objects.create(
-                        user=request.user,
-                        image=image_file,
-                        image_prompt=image_prompt,
-                        diagnosis_title=ai_data.get('diagnosis_title', 'Untitled'),
-                        health_condition=ai_data.get('health_condition', 'Unknown'),
-                        cause=ai_data.get('cause', 'Unknown'),
-                        disease_signs=ai_data.get('disease_signs', 'None detected'),
-                        control_suggestions=ai_data.get('control_suggestions', 'None provided'),
-                        summary=ai_data.get('summary', 'No summary available'),
-                    )
-                    diagnosis.save()
+        for field in response_data['data']:
+            if field in diagnosis_result:
+                response_data['data'][field] = diagnosis_result[field]
 
-                return JsonResponse({
-                    'message': 'Diagnosis saved successfully',
-                    'data': {
-                        'diagnosis_title': ai_data.get('diagnosis_title', 'Untitled'),
-                        'health_condition': ai_data.get('health_condition', 'Unknown'),
-                        'cause': ai_data.get('cause', 'Unknown'),
-                        'disease_signs': ai_data.get('disease_signs', 'None detected'),
-                        'control_suggestions': ai_data.get('control_suggestions', 'None provided'),
-                        'summary': ai_data.get('summary', 'No summary available'),
-                    }
-                }, status=201)
+        return JsonResponse(response_data, status=200)
 
-            else:
-                # Handle stored diagnosis logic if no API URL is present
-                stored_diagnosis = StoredDiagnosis.objects.all()
-                stored_list = list(stored_diagnosis)
-                random.shuffle(stored_list)
+    except ValueError as e:
+        return JsonResponse({'error': str(e)}, status=400)
+    except Exception as e:
+        return JsonResponse({'error': 'Internal server error'}, status=500)
+    
 
-                diagnosis_result = None 
-
-                for item in stored_list:
-                    if item.name.lower() in image_prompt.lower():
-                        diagnosis_result = item
-                        break  # Stop once a match is found
-
-                # Check if diagnosis_result was found
-                if diagnosis_result is None:
-                    return JsonResponse({'error': 'No diagnosis could be taken with the provided prompt!'}, status=400)
-
-                # Save response to DB if user is authenticated
-                if request.user.is_authenticated:
-                    diagnosis = PlantDiagnosis.objects.create(
-                        user=request.user,
-                        image=image_file,
-                        image_prompt=image_prompt,
-                        diagnosis_title=diagnosis_result.diagnosis_title,
-                        health_condition=diagnosis_result.health_condition,
-                        cause=diagnosis_result.cause,
-                        disease_signs=diagnosis_result.disease_signs,
-                        control_suggestions=diagnosis_result.control_suggestions,
-                        summary=diagnosis_result.summary,
-                    )
-                    diagnosis.save()
-
-                return JsonResponse({
-                    'message': 'Diagnosis done successfully',
-                    'data': {
-                        'diagnosis_title': diagnosis_result.diagnosis_title,
-                        'health_condition': diagnosis_result.health_condition,
-                        'cause': diagnosis_result.cause,
-                        'disease_signs': diagnosis_result.disease_signs,
-                        'control_suggestions': diagnosis_result.control_suggestions,
-                        'summary': diagnosis_result.summary,
-                    }
-                }, status=201)
-
-        except requests.RequestException as e:
-            return JsonResponse({'error': f'Failed to connect to AI API: {str(e)}'}, status=502)
-        except ValueError:
-            return JsonResponse({'error': 'Invalid JSON response from AI'}, status=500)
-
-    return JsonResponse({'error': 'Only POST method allowed'}, status=405)
-
-
+# History    
+@login_required
 def diagnosis_history(request, user_id):
     all_diagnosis = PlantDiagnosis.objects.all()
 
@@ -135,6 +137,9 @@ def diagnosis_history(request, user_id):
     }
     return render(request, 'submissions/history.html', context)
 
+
+# History Details
+@login_required
 def get_history(request, diagnosis_id):
     diagnosis = PlantDiagnosis.objects.get(id=diagnosis_id)
     data = model_to_dict(diagnosis)

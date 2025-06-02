@@ -9,6 +9,7 @@ certifi==2025.4.26
 charset-normalizer==3.4.2
 cloudinary==1.44.0
 deprecation==2.1.0
+distro==1.9.0
 Django==5.2
 django-jazzmin==3.0.1
 Faker==37.1.0
@@ -23,7 +24,9 @@ httpx==0.28.1
 hyperframe==6.1.0
 idna==3.10
 iniconfig==2.1.0
+jiter==0.10.0
 multidict==6.4.3
+openai==1.82.1
 packaging==25.0
 pillow==11.2.1
 pluggy==1.5.0
@@ -46,6 +49,7 @@ sqlparse==0.5.3
 storage3==0.11.3
 StrEnum==0.4.15
 supafunc==0.9.4
+tqdm==4.67.1
 typing-inspection==0.4.0
 typing_extensions==4.13.2
 tzdata==2025.2

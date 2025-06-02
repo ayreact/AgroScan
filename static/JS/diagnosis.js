@@ -1,5 +1,6 @@
 // Image upload and preview functionality
 const imageUpload = document.getElementById('image-upload');
+const desCription = document.getElementById('description');
 const previewImage = document.getElementById('preview-image');
 const uploadPrompt = document.getElementById('upload-prompt');
 const cameraButton = document.getElementById('camera-button');
@@ -13,6 +14,7 @@ const control_suggestions = document.getElementById("control-suggestions");
 const summary = document.getElementById("summary");
 const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
 const result_container = document.getElementById('results-container');
+const imageClear = document.getElementById('image-clear');
 
 // Store captured image blob
 let capturedImageBlob = null;
@@ -41,6 +43,7 @@ imageUpload.addEventListener('change', function() {
       previewImage.src = e.target.result;
       previewImage.style.display = 'block';
       uploadPrompt.style.display = 'none';
+      imageClear.style.display = 'inline';
     }
     reader.readAsDataURL(file);
   }
@@ -144,6 +147,7 @@ cameraButton.addEventListener('click', function () {
       previewImage.src = imageDataUrl;
       previewImage.style.display = 'block';
       uploadPrompt.style.display = 'none';
+      imageClear.style.display = 'inline';
       
       if (stream) {
         stream.getTracks().forEach(track => track.stop());
@@ -159,9 +163,11 @@ cameraButton.addEventListener('click', function () {
 form.addEventListener('submit', async function (e) {
     e.preventDefault();
 
-    if (previewImage.style.display === 'none') {
-        errorMessage.textContent = 'Please upload or take an image of your crop';
+    if (previewImage.style.display === 'none' && desCription.value.length == 0) {
+        errorMessage.textContent = 'Please provide an image or type a prompt';
         return;
+    }else{
+      errorMessage.textContent = '';
     }
 
     const formData = new FormData(form);
@@ -196,6 +202,7 @@ form.addEventListener('submit', async function (e) {
             result_container.scrollIntoView({ behavior: 'smooth' });
         } else {
             alert(prompt_response.error);
+            console.log(prompt_response.error)
         }
     } catch (error) {
         console.error('Network error:', error);
@@ -223,3 +230,14 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 });
+
+function clearImageUpload() {
+  if (imageUpload.value != ""){
+    imageUpload.value = "";
+    previewImage.src = '';
+    previewImage.style.display = 'none';
+    uploadPrompt.style.display = 'block';
+  }
+}
+
+imageClear.addEventListener("click", clearImageUpload)
