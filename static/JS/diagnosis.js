@@ -15,6 +15,8 @@ const summary = document.getElementById("summary");
 const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
 const result_container = document.getElementById('results-container');
 const imageClear = document.getElementById('image-clear');
+const loaderCon = document.querySelector(".loader-con");
+const mainBody = document.body;
 
 // Store captured image blob
 let capturedImageBlob = null;
@@ -171,6 +173,8 @@ form.addEventListener('submit', async function (e) {
     }
 
     const formData = new FormData(form);
+    loaderCon.style.display = 'flex';
+    mainBody.style.overflow = 'hidden';
     
     // If there's a captured image (from camera), add it to the form data
     if (capturedImageBlob) {
@@ -189,6 +193,8 @@ form.addEventListener('submit', async function (e) {
         });
 
         const prompt_response = await response.json();
+        loaderCon.style.display = 'none';
+        mainBody.style.overflow = 'scroll';
 
         if (response.ok) {
             localStorage.setItem('lastDiagnosis', JSON.stringify(prompt_response.data));
@@ -206,6 +212,8 @@ form.addEventListener('submit', async function (e) {
         }
     } catch (error) {
         console.error('Network error:', error);
+        loaderCon.style.display = 'none';
+        mainBody.style.overflow = 'scroll';
         alert('Something went wrong. Please try again.');
     }
 });
@@ -237,6 +245,7 @@ function clearImageUpload() {
     previewImage.src = '';
     previewImage.style.display = 'none';
     uploadPrompt.style.display = 'block';
+    imageClear.style.display = 'none';
   }
 }
 
