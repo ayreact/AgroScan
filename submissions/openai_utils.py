@@ -24,7 +24,10 @@ def generate_crop_diagnosis(text=None, image_file=None):
                 "1. First validate if inputs are crop-related\n"
                 "2. Return errors for completely irrelevant inputs\n"
                 "3. For partially valid inputs, include warnings in health_condition\n"
-                "4. Always use the exact specified JSON format"
+                "4. For crop images which you can identify the crop itself, include the crop name in diagnosis_title or health_condition\n"
+                "5. Include possible wrong human actions that could cause the crop disease in cause\n"
+                "6. In your entire response, make sure you don't use big vocabulary, use simple common words anyone either learned or not can easily understand\n"
+                "7. Always use the exact specified JSON format"
             )
         }
     ]
@@ -62,7 +65,9 @@ def generate_crop_diagnosis(text=None, image_file=None):
             "   - If image is non-crop BUT text is valid:\n"
             "     Include in health_condition: \"[DIAGNOSIS] (Warning: Diagnosing from text only - image appears unrelated)\"\n"
             "   - If text is irrelevant BUT image is valid:\n"
-            "     Include in health_condition: \"[DIAGNOSIS] (Warning: Diagnosing from image only - text appears unrelated)\"\n\n"
+            "     Include in health_condition: \"[DIAGNOSIS] (Warning: Diagnosing from image only - text appears unrelated)\"\n"
+            "   - If and only if you can identify the crop in the image itself:\n"
+            "     Include in diagnosis_title or health_condition the name of the crop\"\n\n"
             
             "3. Provide output in THIS EXACT FORMAT:\n"
             '{\n'
