@@ -125,10 +125,7 @@ public class SMSService {
           apiData.setFrom(data[0]);
           System.out.println(data[2]);
           if(data[2] != null) {
-<<<<<<< HEAD
-=======
               System.out.println("with whatsapp");
->>>>>>> e31e5ca (code xhnaged)
               File outputFile = getFilefromUrl(data[2]);
               if (!Objects.isNull(outputFile)) {
                   System.out.println(outputFile.exists());
@@ -141,10 +138,7 @@ public class SMSService {
               }
           }
           else {
-<<<<<<< HEAD
-=======
               System.out.println("without whatsapp");
->>>>>>> e31e5ca (code xhnaged)
                   com.twilio.rest.api.v2010.account.Message message = com.twilio.rest.api.v2010.account.Message.creator(
                           new PhoneNumber(data[0]),
                           new PhoneNumber("whatsapp:+14155238886"),
