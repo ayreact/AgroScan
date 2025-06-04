@@ -128,7 +128,7 @@ public class SMSService {
               System.out.println("with whatsapp");
               File outputFile = getFilefromUrl(data[2]);
               if (!Objects.isNull(outputFile)) {
-                  System.out.println(outputFile.exists());
+                  System.out.println("From: "+data[0]);
                   apiData.setImage(outputFile);
                   com.twilio.rest.api.v2010.account.Message message = com.twilio.rest.api.v2010.account.Message.creator(
                           new PhoneNumber(data[0]),
