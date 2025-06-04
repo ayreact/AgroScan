@@ -3,6 +3,7 @@ package org.agroscan.demo.sms.controller;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.http.ResponseEntity;
 import org.agroscan.demo.sms.model.*;
@@ -23,7 +24,7 @@ public class SMSController {
       @Autowired
       private SMSService smsService;
 
-      @PostMapping(value = "/sms/send",produces = "application/xml")
+      @PostMapping(value = "/sms/send",produces = MediaType.APPLICATION_XML_VALUE)
       public ResponseEntity<String> sendSMS(@RequestParam("Body") String body,
                                             @RequestParam("From") String from,
                                             @RequestParam(name = "NumMedia", defaultValue = "0" , required = false) int numMedia,
@@ -45,7 +46,7 @@ public class SMSController {
 
       @PostMapping("/smsw/send")
     public String handleWhatsappMessage(@RequestParam("Body") String body, @RequestParam("From") String from
-      , @RequestParam(value = "NumMedia", required = false) int numMedia, @RequestParam(value = "MediaUrl0", required = false) String mediaUrl0
+      , @RequestParam(value = "NumMedia", required = false) Integer numMedia, @RequestParam(value = "MediaUrl0", required = false) String mediaUrl0
       ) {
           try {
               smsService.sendWhatsappMessage(numMedia, from, body, mediaUrl0);

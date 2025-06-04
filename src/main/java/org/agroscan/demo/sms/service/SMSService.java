@@ -6,14 +6,10 @@ import com.twilio.twiml.messaging.Media;
 import com.twilio.twiml.messaging.Message;
 import org.agroscan.demo.sms.response.DataResponse;
 import org.agroscan.demo.sms.response.Response;
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +22,6 @@ import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.net.URLConnection;
 import java.util.*;
 
 import org.springframework.util.LinkedMultiValueMap;
@@ -50,12 +45,13 @@ public class SMSService {
 
       @Autowired
       private RestTemplate restTemplate;
-      private ObjectMapper objectMapper;
+      private ObjectMapper objectMapper = new ObjectMapper();
       private String path = System.getProperty("java.io.tmpdir");
       private Logger logger = LoggerFactory.getLogger(SMSService.class);
-      public String sendSMS(ApiData apiData) {
+      private String url = "https://agroscan-xasy.onrender.com/new-chat/sms-diagnosis";
+
+    public String sendSMS(ApiData apiData) {
              Response response = null;
-             objectMapper = new ObjectMapper();
              try {
                  if(apiData.getNumMedia() > 0) {
                      if(!Objects.isNull(apiData.getMediaUrl0())) {
@@ -121,24 +117,32 @@ public class SMSService {
         return format;
     }
 
-    public void sendWhatsappMessage(int numMedia,String ...data) throws IOException, URISyntaxException {
+    public void sendWhatsappMessage(Integer numMedia,String ...data) throws IOException, URISyntaxException {
           Twilio.init(ACCOUNT_SID,AUTH_TOKEN);
 
           ApiData apiData = new ApiData();
           apiData.setBody(data[1]);
-          apiData.setImage(new File(path,"test.jpg"));
           apiData.setFrom(data[0]);
-
-        System.out.println(data[2]);
-        File outputFile = getFilefromUrl(data[2]);
-        System.out.println(outputFile.exists());
-        apiData.setImage(outputFile);
-          com.twilio.rest.api.v2010.account.Message message = com.twilio.rest.api.v2010.account.Message.creator(
-                  new PhoneNumber(data[0]),
-                  new PhoneNumber("whatsapp:+14155238886"),
-                  extractData(readApi(apiData))
-          ).create();
-        System.out.println(message.getAccountSid());
+          System.out.println(data[2]);
+          if(data[2] != null) {
+              File outputFile = getFilefromUrl(data[2]);
+              if (!Objects.isNull(outputFile)) {
+                  System.out.println(outputFile.exists());
+                  apiData.setImage(outputFile);
+                  com.twilio.rest.api.v2010.account.Message message = com.twilio.rest.api.v2010.account.Message.creator(
+                          new PhoneNumber(data[0]),
+                          new PhoneNumber("whatsapp:+14155238886"),
+                          extractData(readApi(apiData))
+                  ).create();
+              }
+          }
+          else {
+                  com.twilio.rest.api.v2010.account.Message message = com.twilio.rest.api.v2010.account.Message.creator(
+                          new PhoneNumber(data[0]),
+                          new PhoneNumber("whatsapp:+14155238886"),
+                          extractData(readApi(apiData))
+                  ).create();
+              }
     }
 
     public File getFilefromUrl(String url) {
@@ -167,23 +171,27 @@ public class SMSService {
     }
 
     private Response readApi(ApiData apiData) throws IOException, URISyntaxException {
-          String url = "https://agroscan-xasy.onrender.com/new-chat/sms-diagnosis";
 
         File file = apiData.getImage();
-        FileSystemResource fileResource = new FileSystemResource(file);
+        FileSystemResource fileResource = null;
+        if (file != null) {
+            fileResource = new FileSystemResource(file);
+        }
 
-        MultiValueMap<String,Object> body = new LinkedMultiValueMap<>();
-        body.add("text",apiData.getBody());
-        body.add("image",fileResource);
+        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+        body.add("text", apiData.getBody());
+        if (fileResource != null) {
+            body.add("image", fileResource);
+        }
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
-        headers.set("Diagnosis-Key",dkey);
+        headers.set("Diagnosis-Key", dkey);
 
-        HttpEntity<MultiValueMap<String,Object>> requestEntity =
-                new HttpEntity<>(body,headers);
+        HttpEntity<MultiValueMap<String, Object>> requestEntity =
+                new HttpEntity<>(body, headers);
         ResponseEntity<Response> response = restTemplate
-                .postForEntity(url,requestEntity,Response.class);
+                .postForEntity(url, requestEntity, Response.class);
         System.out.println(response.getBody().toString());
         return response.getBody();
 
