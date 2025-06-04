@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Base64;
@@ -47,15 +48,8 @@ public class SMSController {
       @PostMapping("/smsw/send")
     public String handleWhatsappMessage(@RequestParam("Body") String body, @RequestParam("From") String from
       , @RequestParam(value = "NumMedia", required = false) Integer numMedia, @RequestParam(value = "MediaUrl0", required = false) String mediaUrl0
-      ) {
-          try {
-              smsService.sendWhatsappMessage(numMedia, from, body, mediaUrl0);
-          }
-          catch(Exception ex) {ex.printStackTrace();}
+      ) throws IOException, URISyntaxException {
+          smsService.sendWhatsappMessage(numMedia, from, body, mediaUrl0);
           return "";
     }
-
-
-
-
 }

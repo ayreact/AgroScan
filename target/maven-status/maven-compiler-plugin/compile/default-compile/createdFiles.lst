@@ -7,3 +7,4 @@ org\agroscan\demo\sms\service\SMSService.class
 org\agroscan\demo\sms\controller\SMSController.class
 org\agroscan\demo\sms\model\ApiData.class
 org\agroscan\demo\sms\response\DataResponse.class
+org\agroscan\demo\sms\response\ErrorResponse.class

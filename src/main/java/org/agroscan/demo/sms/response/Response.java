@@ -3,6 +3,7 @@ package org.agroscan.demo.sms.response;
 public class Response {
     private DataResponse data;
     private String message;
+    private String error;
 
     public DataResponse getData() {
         return data;
@@ -18,6 +19,14 @@ public class Response {
 
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    public String getError() {
+        return error;
+    }
+
+    public void setError(String error) {
+        this.error = error;
     }
 
     @Override
