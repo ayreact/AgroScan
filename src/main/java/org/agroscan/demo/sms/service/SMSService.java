@@ -22,6 +22,8 @@ import org.agroscan.demo.sms.model.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.HttpURLConnection;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.*;
 
@@ -51,58 +53,45 @@ public class SMSService {
       private Logger logger = LoggerFactory.getLogger(SMSService.class);
       private String url = "https://agroscan-xasy.onrender.com/new-chat/sms-diagnosis";
 
-    public String sendSMS(ApiData apiData) {
-             Response response = null;
-             Twilio.init(ACCOUNT_SID, AUTH_TOKEN);
-             String value = "";
 
-              try {
-                 if(apiData.getNumMedia() > 0) {
-                     if(!Objects.isNull(apiData.getMediaUrl0())) {
-                         apiData.setImage(getFilefromUrl(apiData.getMediaUrl0()));
-                         response = readApi(apiData);
-                     }
-                 }
-                 else {
-                     response = readApi(apiData);
-                 }
-             }
-             catch(Exception e) {
-                   System.out.println("ERROR: "+e.getMessage());
-                   logger.error("ERROR: {}",e.getMessage());
-                   value = sendPlainText(e.getMessage().substring(17));
-             }
-            System.out.println(response);
-            logger.info("authenticated and authorised");
-            if(!Objects.isNull(apiData)) {
-                 if(!Objects.isNull(response)) {
+    public String sendSMS(Integer numMedia,String ...data)  {
+        try {
+            Twilio.init(ACCOUNT_SID, AUTH_TOKEN);
+            System.out.println("authenticated.....");
+            String from = data[0];
+            String body = data[1];
+            String mediaUrl = data[2];
+            ApiData apiData = new ApiData();
+            apiData.setBody(body);
+            apiData.setFrom(from);
+            apiData.setMediaUrl0(mediaUrl);
+            apiData.setNumMedia(numMedia.intValue());
 
-                     String format = extractData(response);
-                     Body responseBody = new Body.Builder(format).build();
-                     Media media = new Media.Builder(apiData.getMediaUrl0()).build();
-                     Message message = null;
-                     if(!Objects.isNull(apiData.getMediaUrl0())) {
-                         message = new Message.Builder()
-                                 .body(responseBody)
-                                 .media(media)
-                                 .build();
-                     }
-                     else {
-                         message = new Message.Builder()
-                                 .body(responseBody)
-                                 .build();
-                     }
-
-                     MessagingResponse twiml = new MessagingResponse.Builder()
-                             .message(message)
-                             .build();
-
-                     value=twiml.toXml();
-                     logger.info("message has been sent successfully with response : {}", twiml.toXml());
-
-                 }
+            if (!Objects.isNull(mediaUrl)) {
+                apiData.setImage(getFilefromUrl(mediaUrl));
+                com.twilio.rest.api.v2010.account.Message message =
+                        com.twilio.rest.api.v2010.account.Message.creator(
+                                        new PhoneNumber(from),
+                                        new PhoneNumber(DEV_NUM),
+                                        extractData(Objects.requireNonNull(readApi(apiData))).substring(0,147)
+                                )
+                                .setMediaUrl(new URI(mediaUrl))
+                                .create();
+            } else {
+                com.twilio.rest.api.v2010.account.Message message =
+                        com.twilio.rest.api.v2010.account.Message.creator(
+                                new PhoneNumber(from),
+                                new PhoneNumber(DEV_NUM),
+                                extractData(Objects.requireNonNull(readApi(apiData))).substring(0,147)
+                        ).create();
             }
-         return value;
+        }
+        catch(URISyntaxException e) {
+            return e.getMessage();
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+        return "";
     }
 
     public String sendPlainText(String format) {
@@ -123,12 +112,12 @@ public class SMSService {
         DataResponse dataResponse = response.getData();
         String format = "";
         if(!Objects.isNull(dataResponse)) {
-             format = "\nDiagnosis Title: " + dataResponse.getDiagnosis_title() +
-                    "\nHealth Condition: " + dataResponse.getHealth_condition() +
-                    "\nCause: " + dataResponse.getCause() +
-                    "\nControl: " + dataResponse.getControl_suggestions() +
-                    "\nDisease Signs: " + dataResponse.getDisease_signs() +
-                    "\nSummary: " + dataResponse.getSummary();
+             format = "\n\n\nDiagnosis Title: " + dataResponse.getDiagnosis_title() +
+                    "\n\n\nHealth Condition: " + dataResponse.getHealth_condition() +
+                    "\n\n\nCause: " + dataResponse.getCause() +
+                    "\n\n\nControl: " + dataResponse.getControl_suggestions() +
+                    "\n\n\nDisease Signs: " + dataResponse.getDisease_signs() +
+                    "\n\n\nSummary: " + dataResponse.getSummary();
         }
         else {
             format = response.getError();
@@ -164,6 +153,7 @@ public class SMSService {
                 data
         ).create();
     }
+
 
     public File getFilefromUrl(String url) {
             String msg = "";

@@ -30,7 +30,7 @@ public class SMSController {
                                             @RequestParam("From") String from,
                                             @RequestParam(name = "NumMedia", defaultValue = "0" , required = false) int numMedia,
                                             @RequestParam(name = "MediaUrl0", required = false) String mediaUrl
-                                            ) throws IOException {
+                                            ) throws IOException, URISyntaxException {
             ApiData apiData = new ApiData();
             System.out.println("accessed");
             apiData.setBody(body);
@@ -41,7 +41,7 @@ public class SMSController {
           System.out.println("Body: "+body);
           System.out.println("From: "+from);
           System.out.println("NumMedia: "+numMedia);
-           String result =  smsService.sendSMS(apiData);
+          String result =  smsService.sendSMS(apiData.getNumMedia(),apiData.getFrom(),apiData.getBody(),apiData.getMediaUrl0());
           return new ResponseEntity<>(result,HttpStatus.OK);
       }
 
