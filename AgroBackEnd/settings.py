@@ -50,12 +50,12 @@ INSTALLED_APPS = [
 ]
 
 AI_API = os.getenv('AI_API')
-OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
+GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
 DIAGNOSIS_KEY = os.getenv('DIAGNOSIS_KEY')
 
 CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SAMESITE = 'Lax'  # default
+CSRF_COOKIE_SAMESITE = 'Lax'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

@@ -10,7 +10,7 @@
         {% if user.is_authenticated %}
         <li><a href="#" class="historyBtn">History</a></li>
         {% if user.is_superuser %}
-        <li><a href="/admin">Admin</a></li>
+        <li><a href="/admin" target="_blank">Admin</a></li>
         {% endif %}
         <li><a href="{% url 'logout' %}">Log Out</a></li>
         {% else %}
