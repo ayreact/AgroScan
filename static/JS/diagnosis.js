@@ -34,26 +34,41 @@ function dataURLtoBlob(dataURL) {
   return new Blob([u8arr], { type: mime });
 }
 
+imageUpload.addEventListener('click', function() {
+  // Store the current value
+  this.previousValue = this.value;
+});
+
+imageUpload.addEventListener('cancel', function() {
+  // If dialog was cancelled and value is empty, restore the previous value
+  if (this.value === '' && this.previousValue) {
+      this.value = this.previousValue;
+  }
+});
+
 imageUpload.addEventListener('change', function() {
   const file = this.files[0];
   if (file) {
-    // Clear any previously captured image
-    capturedImageBlob = null;
-    
-    const reader = new FileReader();
-    reader.onload = function(e) {
-      previewImage.src = e.target.result;
-      previewImage.style.display = 'block';
-      uploadPrompt.style.display = 'none';
-      imageClear.style.display = 'inline';
-    }
-    reader.readAsDataURL(file);
+      // Clear any previously captured image
+      capturedImageBlob = null;
+      
+      // Store the current file for restoration if needed
+      this.currentFile = file;
+      
+      const reader = new FileReader();
+      reader.onload = function(e) {
+          previewImage.src = e.target.result;
+          previewImage.style.display = 'block';
+          uploadPrompt.style.display = 'none';
+          imageClear.style.display = 'inline';
+      }
+      reader.readAsDataURL(file);
   }
 });
 
 cameraButton.addEventListener('click', function () {
   if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-    
+    // Create camera modal
     const cameraContainer = document.createElement('div');
     cameraContainer.style.position = 'fixed';
     cameraContainer.style.top = '0';
@@ -67,38 +82,186 @@ cameraButton.addEventListener('click', function () {
     cameraContainer.style.alignItems = 'center';
     cameraContainer.style.justifyContent = 'center';
     
+    // Create camera dialog
+    const cameraDialog = document.createElement('div');
+    cameraDialog.style.backgroundColor = '#1a1a1a';
+    cameraDialog.style.borderRadius = '16px';
+    cameraDialog.style.overflow = 'hidden';
+    cameraDialog.style.width = '90%';
+    cameraDialog.style.maxWidth = '500px';
+    cameraDialog.style.boxShadow = '0 10px 30px rgba(0, 0, 0, 0.3)';
+    
+    // Create header
+    const header = document.createElement('div');
+    header.style.display = 'flex';
+    header.style.justifyContent = 'space-between';
+    header.style.alignItems = 'center';
+    header.style.padding = '16px 20px';
+    header.style.backgroundColor = '#2a2a2a';
+    header.style.color = 'white';
+    
+    const title = document.createElement('h3');
+    title.textContent = 'Take a Photo';
+    title.style.margin = '0';
+    title.style.fontWeight = '500';
+    title.style.fontSize = '18px';
+    
+    const closeBtn = document.createElement('button');
+    closeBtn.innerHTML = '&times;';
+    closeBtn.style.background = 'none';
+    closeBtn.style.border = 'none';
+    closeBtn.style.color = 'white';
+    closeBtn.style.fontSize = '24px';
+    closeBtn.style.cursor = 'pointer';
+    closeBtn.style.padding = '0';
+    closeBtn.style.width = '30px';
+    closeBtn.style.height = '30px';
+    closeBtn.style.borderRadius = '50%';
+    closeBtn.style.display = 'flex';
+    closeBtn.style.alignItems = 'center';
+    closeBtn.style.justifyContent = 'center';
+    
+    header.appendChild(title);
+    header.appendChild(closeBtn);
+    
+    // Create video preview
+    const previewContainer = document.createElement('div');
+    previewContainer.style.position = 'relative';
+    previewContainer.style.width = '100%';
+    previewContainer.style.paddingBottom = '75%'; // 4:3 aspect ratio
+    previewContainer.style.backgroundColor = '#000';
+    previewContainer.style.overflow = 'hidden';
+    
     const videoEl = document.createElement('video');
-    videoEl.style.maxWidth = '90%';
-    videoEl.style.maxHeight = '70%';
-    videoEl.style.objectFit = 'contain';
+    videoEl.style.position = 'absolute';
+    videoEl.style.top = '0';
+    videoEl.style.left = '0';
+    videoEl.style.width = '100%';
+    videoEl.style.height = '100%';
+    videoEl.style.objectFit = 'cover';
     videoEl.autoplay = true;
     videoEl.playsInline = true;
     
-    const buttonContainer = document.createElement('div');
-    buttonContainer.style.display = 'flex';
-    buttonContainer.style.gap = '1rem';
-    buttonContainer.style.marginTop = '1rem';
+    // Create camera frame
+    const cameraFrame = document.createElement('div');
+    cameraFrame.style.position = 'absolute';
+    cameraFrame.style.top = '50%';
+    cameraFrame.style.left = '50%';
+    cameraFrame.style.transform = 'translate(-50%, -50%)';
+    cameraFrame.style.width = '80%';
+    cameraFrame.style.height = '80%';
+    cameraFrame.style.border = '2px solid rgba(255, 255, 255, 0.5)';
+    cameraFrame.style.borderRadius = '8px';
+    cameraFrame.style.pointerEvents = 'none';
     
-    const captureBtn = document.createElement('button');
-    captureBtn.className = 'btn btn-primary';
-    captureBtn.innerHTML = '<i class="fas fa-camera"></i>';
+    // Create frame corners
+    const createCorner = (position) => {
+      const corner = document.createElement('div');
+      corner.style.position = 'absolute';
+      corner.style.width = '20px';
+      corner.style.height = '20px';
+      corner.style.borderColor = 'white';
+      corner.style.borderStyle = 'solid';
+      
+      switch(position) {
+        case 'top-left':
+          corner.style.top = '-2px';
+          corner.style.left = '-2px';
+          corner.style.borderWidth = '3px 0 0 3px';
+          corner.style.borderRadius = '8px 0 0 0';
+          break;
+        case 'top-right':
+          corner.style.top = '-2px';
+          corner.style.right = '-2px';
+          corner.style.borderWidth = '3px 3px 0 0';
+          corner.style.borderRadius = '0 8px 0 0';
+          break;
+        case 'bottom-left':
+          corner.style.bottom = '-2px';
+          corner.style.left = '-2px';
+          corner.style.borderWidth = '0 0 3px 3px';
+          corner.style.borderRadius = '0 0 0 8px';
+          break;
+        case 'bottom-right':
+          corner.style.bottom = '-2px';
+          corner.style.right = '-2px';
+          corner.style.borderWidth = '0 3px 3px 0';
+          corner.style.borderRadius = '0 0 8px 0';
+          break;
+      }
+      
+      return corner;
+    };
     
-    const switchBtn = document.createElement('button');
-    switchBtn.className = 'btn btn-secondary';
-    switchBtn.innerHTML = '<i class="fas fa-sync-alt"></i>';
+    cameraFrame.appendChild(createCorner('top-left'));
+    cameraFrame.appendChild(createCorner('top-right'));
+    cameraFrame.appendChild(createCorner('bottom-left'));
+    cameraFrame.appendChild(createCorner('bottom-right'));
     
-    const cancelBtn = document.createElement('button');
-    cancelBtn.className = 'btn btn-outline';
-    cancelBtn.style.backgroundColor = 'white';
-    cancelBtn.innerHTML = '<i class="fas fa-times"></i>';
-
-    buttonContainer.appendChild(switchBtn);
-    buttonContainer.appendChild(captureBtn);
-    buttonContainer.appendChild(cancelBtn);
+    previewContainer.appendChild(videoEl);
+    previewContainer.appendChild(cameraFrame);
     
-    cameraContainer.appendChild(videoEl);
-    cameraContainer.appendChild(buttonContainer);
+    // Create controls
+    const controls = document.createElement('div');
+    controls.style.display = 'flex';
+    controls.style.justifyContent = 'space-between';
+    controls.style.alignItems = 'center';
+    controls.style.padding = '20px';
+    controls.style.backgroundColor = '#2a2a2a';
+    
+    const createControlButton = (icon, className) => {
+      const btn = document.createElement('button');
+      btn.className = className;
+      btn.innerHTML = `<i class="fas ${icon}"></i>`;
+      btn.style.background = 'none';
+      btn.style.border = 'none';
+      btn.style.color = 'white';
+      btn.style.cursor = 'pointer';
+      btn.style.padding = '12px';
+      btn.style.borderRadius = '50%';
+      btn.style.display = 'flex';
+      btn.style.alignItems = 'center';
+      btn.style.justifyContent = 'center';
+      btn.style.transition = 'all 0.2s';
+      
+      return btn;
+    };
+    
+    const switchBtn = createControlButton('fa-sync-alt', 'switch-camera');
+    switchBtn.style.fontSize = '20px';
+    switchBtn.style.width = '50px';
+    switchBtn.style.height = '50px';
+    
+    const captureBtn = createControlButton('', 'capture-btn');
+    captureBtn.style.width = '64px';
+    captureBtn.style.height = '64px';
+    captureBtn.style.background = 'white';
+    captureBtn.style.border = '4px solid rgba(255, 255, 255, 0.3)';
+    
+    const captureCircle = document.createElement('div');
+    captureCircle.style.width = '56px';
+    captureCircle.style.height = '56px';
+    captureCircle.style.borderRadius = '50%';
+    captureCircle.style.background = 'white';
+    captureCircle.style.border = '2px solid rgba(0, 0, 0, 0.1)';
+    captureBtn.appendChild(captureCircle);
+    
+    const cancelBtn = createControlButton('fa-times', 'cancel-btn');
+    cancelBtn.style.fontSize = '20px';
+    cancelBtn.style.width = '50px';
+    cancelBtn.style.height = '50px';
+    
+    controls.appendChild(switchBtn);
+    controls.appendChild(captureBtn);
+    controls.appendChild(cancelBtn);
+    
+    // Assemble dialog
+    cameraDialog.appendChild(header);
+    cameraDialog.appendChild(previewContainer);
+    cameraDialog.appendChild(controls);
+    cameraContainer.appendChild(cameraDialog);
     document.body.appendChild(cameraContainer);
+    document.body.style.overflow = 'hidden';
 
     let currentFacingMode = 'environment';
     let stream = null;
@@ -112,11 +275,19 @@ cameraButton.addEventListener('click', function () {
         })
         .catch(function (error) {
           errorMessage.textContent = 'Error accessing camera: ' + error.message;
-          document.body.removeChild(cameraContainer);
+          closeCamera();
         });
     }
 
-    startCamera(); 
+    function closeCamera() {
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+      }
+      document.body.removeChild(cameraContainer);
+      document.body.style.overflow = '';
+    }
+
+    startCamera();
 
     switchBtn.addEventListener('click', function () {
       if (stream) {
@@ -126,12 +297,8 @@ cameraButton.addEventListener('click', function () {
       startCamera();
     });
 
-    cancelBtn.addEventListener('click', function () {
-      if (stream) {
-        stream.getTracks().forEach(track => track.stop());
-      }
-      document.body.removeChild(cameraContainer);
-    });
+    closeBtn.addEventListener('click', closeCamera);
+    cancelBtn.addEventListener('click', closeCamera);
 
     captureBtn.addEventListener('click', function () {
       const canvas = document.createElement('canvas');
@@ -151,10 +318,7 @@ cameraButton.addEventListener('click', function () {
       uploadPrompt.style.display = 'none';
       imageClear.style.display = 'inline';
       
-      if (stream) {
-        stream.getTracks().forEach(track => track.stop());
-      }
-      document.body.removeChild(cameraContainer);
+      closeCamera();
     });
     
   } else {
@@ -164,6 +328,16 @@ cameraButton.addEventListener('click', function () {
 
 form.addEventListener('submit', async function (e) {
     e.preventDefault();
+
+    const hasFileInput = imageUpload.files.length > 0 && imageUpload.files[0];
+    const hasCapturedImage = capturedImageBlob !== null;
+    
+    if (!hasFileInput && !hasCapturedImage && desCription.value.length == 0) {
+        errorMessage.textContent = 'Please provide an image or type a prompt';
+        return;
+    } else {
+        errorMessage.textContent = '';
+    }
 
     if (previewImage.style.display === 'none' && desCription.value.length == 0) {
         errorMessage.textContent = 'Please provide an image or type a prompt';
@@ -240,13 +414,19 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 function clearImageUpload() {
-  if (imageUpload.value != ""){
-    imageUpload.value = "";
-    previewImage.src = '';
-    previewImage.style.display = 'none';
-    uploadPrompt.style.display = 'block';
-    imageClear.style.display = 'none';
+  // Clear file input if it has a value
+  if (imageUpload.value != "") {
+      imageUpload.value = "";
   }
+  
+  // Clear captured image blob if it exists
+  capturedImageBlob = null;
+  
+  // Reset preview UI
+  previewImage.src = '';
+  previewImage.style.display = 'none';
+  uploadPrompt.style.display = 'block';
+  imageClear.style.display = 'none';
 }
 
 imageClear.addEventListener("click", clearImageUpload)
