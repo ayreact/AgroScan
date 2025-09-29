@@ -16,7 +16,7 @@ def generate_crop_diagnosis(text=None, image_file=None):
         - Error object for invalid inputs
     """
     # Initialize the model (using gemini-pro-vision for multimodal support)
-    model = genai.GenerativeModel('gemini-1.5-flash')
+    model = genai.GenerativeModel('gemini-2.0-flash')
     
     # Build the system instruction part
     system_instruction = (
