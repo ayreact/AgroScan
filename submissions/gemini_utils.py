@@ -76,7 +76,7 @@ def generate_crop_diagnosis(text=None, image_file=None):
                 )
         else:
             # For text-only case (switch to text-only model)
-            text_model = genai.GenerativeModel('gemini-1.5-flash')
+            text_model = genai.GenerativeModel('gemini-2.0-flash')
             full_prompt = system_instruction
             if text:
                 full_prompt += f"\nUser's description: {text}"
