@@ -51,7 +51,7 @@ public class SMSService {
       private ObjectMapper objectMapper = new ObjectMapper();
       private String path = System.getProperty("java.io.tmpdir");
       private Logger logger = LoggerFactory.getLogger(SMSService.class);
-      private String url = "https://agroscan-xasy.onrender.com/new-chat/sms-diagnosis";
+      private String url = "https://agroscan-4rco.onrender.com/new-chat/sms-diagnosis";
 
 
     public String sendSMS(Integer numMedia,String ...data)  {
